@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>違約金・損害金計算フォーム</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ec;
+      --accent: #2563eb;
+      --accent2: #0f766e;
+      --warn: #b45309;
+      --warn-bg: #fff7ed;
+      --ok-bg: #f0fdf4;
+      --ok-line: #bbf7d0;
+      --soft: #f8fafc;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+        "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 28px auto 60px;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.05);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 24px 24px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.3;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 0;
+    }
+
+    .left, .right {
+      padding: 22px;
+    }
+
+    .right {
+      border-left: 1px solid var(--line);
+      background: #fcfdff;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .section h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: -2px;
+      margin-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-1 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      background: #fff;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+    }
+
+    .check input[type="checkbox"] {
+      transform: translateY(3px);
+    }
+
+    .check strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .check span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .subsection {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .subsection.hidden,
+    .provider-only.hidden {
+      display: none;
+    }
+
+    .resultBox {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .resultTitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .resultValue {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .resultSub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .breakdown {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .breakdown h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .breakdownItem {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px dashed #e5e7eb;
+      font-size: 14px;
+    }
+
+    .breakdownItem:last-child {
+      border-bottom: none;
+    }
+
+    .breakdownItem .name {
+      color: var(--text);
+    }
+
+    .breakdownItem .val {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .note {
+      margin-top: 14px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 13px;
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    .providerNote {
+      margin-top: 14px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 13px;
+      border: 1px solid var(--ok-line);
+      background: var(--ok-bg);
+      color: #166534;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover {
+      background: #1d4ed8;
+    }
+
+    .secondary {
+      background: #eef2f7;
+      color: var(--text);
+    }
+
+    .formula {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .error {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+      .right {
+        border-left: none;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .resultValue {
+        font-size: 24px;
+      }
+      .left, .right, .header {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>違約金・損害金 計算フォーム</h1>
+        <p class="lead">
+          契約先を選ぶと、第一興商用 / エクシング用の条件に切り替わります。必要な項目だけチェックして計算できます。
+        </p>
+      </div>
+
+      <div class="main">
+        <div class="left">
+          <div class="section">
+            <h2>1. 契約先と共通入力</h2>
+            <div class="grid">
+              <div class="field">
+                <label for="provider">契約先</label>
+                <select id="provider">
+                  <option value="dk">第一興商</option>
+                  <option value="xing">エクシング</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="contractMonths">契約月数（月）</label>
+                <input id="contractMonths" type="number" min="1" step="1" placeholder="例: 60" />
+              </div>
+
+              <div class="field">
+                <label for="standardPrice">標準小売価格（円）</label>
+                <input id="standardPrice" type="number" min="0" step="1" placeholder="例: 2000000" />
+              </div>
+
+              <div class="field">
+                <label for="remainingMonths">残存契約期間月数（月）</label>
+                <input id="remainingMonths" type="number" min="0" step="1" placeholder="例: 24" />
+              </div>
+
+              <div class="field">
+                <label for="monthlyInfoFee">月額情報サービス料（円）</label>
+                <input id="monthlyInfoFee" type="number" min="0" step="1" placeholder="例: 30000" />
+              </div>
+
+              <div class="field provider-only dk-only">
+                <label for="pContentFee">Pコンテンツ利用料（月額・円）</label>
+                <input id="pContentFee" type="number" min="0" step="1" placeholder="第一興商のみ" />
+              </div>
+            </div>
+
+            <div class="formula">
+              <div><strong>共通の基礎式</strong></div>
+              <div>基準月額 = 標準小売価格 ÷ 契約月数（小数点以下切り捨て）</div>
+              <div>賃貸借の基本額 = 基準月額 × 残存契約期間月数 × 2/3（小数点以下切り捨て）</div>
+              <div>情報サービス料違約金 = 月額情報サービス料 × 残存契約期間月数 × 1/2</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>2. 計算対象</h2>
+            <p class="hint">必要なものだけチェックしてください。チェックした項目を合算表示します。</p>
+
+            <div class="checks">
+              <label class="check">
+                <input type="checkbox" id="useRental" checked />
+                <div>
+                  <strong>賃貸借の違約金 / 損害金</strong>
+                  <span>標準小売価格・契約月数・残存契約期間から計算</span>
+                </div>
+              </label>
+
+              <label class="check">
+                <input type="checkbox" id="useReturnDelay" />
+                <div>
+                  <strong>返還遅延</strong>
+                  <span>契約終了後に直ちに返還しなかった場合の計算</span>
+                </div>
+              </label>
+
+              <label class="check">
+                <input type="checkbox" id="useInfoService" />
+                <div>
+                  <strong>情報サービス料違約金</strong>
+                  <span>月額情報サービス料 × 残存契約期間月数 × 1/2</span>
+                </div>
+              </label>
+
+              <label class="check provider-only dk-only">
+                <input type="checkbox" id="usePContent" />
+                <div>
+                  <strong>Pコンテンツ違約金（第一興商）</strong>
+                  <span>Pコンテンツ利用料 × 残存契約期間月数 × 1/2</span>
+                </div>
+              </label>
+
+              <label class="check provider-only dk-only">
+                <input type="checkbox" id="useSoftware" />
+                <div>
+                  <strong>契約終了後のソフト等使用損害賠償（第一興商・参考）</strong>
+                  <span>資料3ページの文言に基づく参考計算欄</span>
+                </div>
+              </label>
+
+              <label class="check provider-only xing-only">
+                <input type="checkbox" id="useRestoreImpossible" />
+                <div>
+                  <strong>原状返還不能 / 滅失 / 修復不能（エクシング）</strong>
+                  <span>基準月額 × 6か月、または現実損害額</span>
+                </div>
+              </label>
+            </div>
+
+            <div id="rentalOptions" class="subsection">
+              <h3>賃貸借の条件</h3>
+              <div class="grid">
+                <div class="field">
+                  <label for="handoverBefore">物件の引渡し以前か</label>
+                  <select id="handoverBefore">
+                    <option value="no">いいえ</option>
+                    <option value="yes">はい</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="actualDamageRental">現実の損害額（円・任意）</label>
+                  <input id="actualDamageRental" type="number" min="0" step="1" placeholder="大きい場合はこれを優先" />
+                </div>
+              </div>
+              <div class="small" id="rentalRuleText"></div>
+            </div>
+
+            <div id="returnDelayOptions" class="subsection hidden">
+              <h3>返還遅延の条件</h3>
+              <div class="grid">
+                <div class="field">
+                  <label for="delayDays">返還遅延日数（日）</label>
+                  <input id="delayDays" type="number" min="0" step="1" placeholder="例: 15" />
+                </div>
+              </div>
+              <div class="small">1か月未満は30日/月で日割計算します。</div>
+            </div>
+
+            <div id="infoOptions" class="subsection hidden">
+              <h3>情報サービス料違約金</h3>
+              <div class="grid-1">
+                <div class="field">
+                  <label for="monthPartialInfo">月途中終了の注意表示</label>
+                  <select id="monthPartialInfo">
+                    <option value="no">不要</option>
+                    <option value="yes">表示する</option>
+                  </select>
+                </div>
+              </div>
+              <div class="small">計算式自体は 月額情報サービス料 × 残存契約期間月数 × 1/2 です。</div>
+            </div>
+
+            <div id="pContentOptions" class="subsection hidden provider-only dk-only">
+              <h3>Pコンテンツ違約金（第一興商）</h3>
+              <div class="small">Pコンテンツ利用料 × 残存契約期間月数 × 1/2 で計算します。</div>
+            </div>
+
+            <div id="softwareOptions" class="subsection hidden provider-only dk-only">
+              <h3>契約終了後のソフト等使用（第一興商・参考）</h3>
+              <div class="grid">
+                <div class="field">
+                  <label for="softwareUseMonths">使用期間（月換算）</label>
+                  <input id="softwareUseMonths" type="number" min="0" step="1" placeholder="例: 2" />
+                </div>
+                <div class="field">
+                  <label for="actualDamageSoftware">現実の損害額（円・任意）</label>
+                  <input id="actualDamageSoftware" type="number" min="0" step="1" placeholder="実損が上回る場合" />
+                </div>
+              </div>
+              <div class="small">
+                参考式: 月額情報サービス料 × 2 × 使用期間（月換算）
+              </div>
+            </div>
+
+            <div id="restoreImpossibleOptions" class="subsection hidden provider-only xing-only">
+              <h3>原状返還不能 / 滅失 / 修復不能（エクシング）</h3>
+              <div class="grid">
+                <div class="field">
+                  <label for="actualDamageRestore">現実の損害額（円・任意）</label>
+                  <input id="actualDamageRestore" type="number" min="0" step="1" placeholder="大きい場合はこれを優先" />
+                </div>
+              </div>
+              <div class="small">基準月額 × 6か月分と現実損害額を比較して大きい方を採用します。</div>
+            </div>
+
+            <div class="buttons">
+              <button class="primary" type="button" id="calcBtn">再計算する</button>
+              <button class="secondary" type="button" id="clearBtn">入力をクリア</button>
+            </div>
+
+            <div id="error" class="error"></div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="resultBox">
+            <div class="resultTitle">基準月額</div>
+            <div class="resultValue" id="baseMonthly">0円</div>
+            <div class="resultSub" id="providerLabel">契約先: 第一興商</div>
+          </div>
+
+          <div class="resultBox">
+            <div class="resultTitle">合計請求額（チェックした項目の合算）</div>
+            <div class="resultValue" id="totalAmount">0円</div>
+            <div class="resultSub" id="totalCaption">必要な項目を選択して計算してください。</div>
+          </div>
+
+          <div class="breakdown">
+            <h3>内訳</h3>
+            <div id="breakdownList"></div>
+          </div>
+
+          <div class="providerNote" id="providerNote"></div>
+          <div class="note" id="cautionNote"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const els = {
+      provider: $('provider'),
+      contractMonths: $('contractMonths'),
+      standardPrice: $('standardPrice'),
+      remainingMonths: $('remainingMonths'),
+      monthlyInfoFee: $('monthlyInfoFee'),
+      pContentFee: $('pContentFee'),
+
+      useRental: $('useRental'),
+      useReturnDelay: $('useReturnDelay'),
+      useInfoService: $('useInfoService'),
+      usePContent: $('usePContent'),
+      useSoftware: $('useSoftware'),
+      useRestoreImpossible: $('useRestoreImpossible'),
+
+      handoverBefore: $('handoverBefore'),
+      actualDamageRental: $('actualDamageRental'),
+      delayDays: $('delayDays'),
+      monthPartialInfo: $('monthPartialInfo'),
+      softwareUseMonths: $('softwareUseMonths'),
+      actualDamageSoftware: $('actualDamageSoftware'),
+      actualDamageRestore: $('actualDamageRestore'),
+
+      rentalOptions: $('rentalOptions'),
+      returnDelayOptions: $('returnDelayOptions'),
+      infoOptions: $('infoOptions'),
+      pContentOptions: $('pContentOptions'),
+      softwareOptions: $('softwareOptions'),
+      restoreImpossibleOptions: $('restoreImpossibleOptions'),
+
+      rentalRuleText: $('rentalRuleText'),
+
+      baseMonthly: $('baseMonthly'),
+      providerLabel: $('providerLabel'),
+      totalAmount: $('totalAmount'),
+      totalCaption: $('totalCaption'),
+      breakdownList: $('breakdownList'),
+      providerNote: $('providerNote'),
+      cautionNote: $('cautionNote'),
+      error: $('error'),
+
+      calcBtn: $('calcBtn'),
+      clearBtn: $('clearBtn')
+    };
+
+    function num(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function yen(n) {
+      return Math.floor(Number(n || 0)).toLocaleString('ja-JP') + '円';
+    }
+
+    function floor(n) {
+      return Math.floor(Number(n || 0));
+    }
+
+    function show(el, visible) {
+      el.classList.toggle('hidden', !visible);
+    }
+
+    function providerName(provider) {
+      return provider === 'dk' ? '第一興商' : 'エクシング';
+    }
+
+    function updateVisibility() {
+      const provider = els.provider.value;
+      const isDK = provider === 'dk';
+      const isXing = provider === 'xing';
+
+      document.querySelectorAll('.dk-only').forEach(el => el.classList.toggle('hidden', !isDK));
+      document.querySelectorAll('.xing-only').forEach(el => el.classList.toggle('hidden', !isXing));
+
+      show(els.returnDelayOptions, els.useReturnDelay.checked);
+      show(els.infoOptions, els.useInfoService.checked);
+      show(els.pContentOptions, isDK && els.usePContent.checked);
+      show(els.softwareOptions, isDK && els.useSoftware.checked);
+      show(els.restoreImpossibleOptions, isXing && els.useRestoreImpossible.checked);
+
+      els.providerLabel.textContent = '契約先: ' + providerName(provider);
+
+      if (isDK) {
+        els.rentalRuleText.textContent =
+          '第一興商: 物件引渡し以前なら基準月額×3か月。通常計算額が50万円未満なら50万円。現実損害額が大きければ現実損害額を採用。';
+        els.providerNote.textContent =
+          '第一興商モードでは、賃貸借・情報サービス料・Pコンテンツ・契約終了後ソフト等使用の参考計算に対応しています。';
+      } else {
+        els.rentalRuleText.textContent =
+          'エクシング: 物件引渡し以前なら基準月額×6か月。通常計算額が50万円未満なら50万円。現実損害額が大きければ現実損害額を採用。';
+        els.providerNote.textContent =
+          'エクシングモードでは、賃貸借・返還遅延・情報サービス料・原状返還不能/滅失/修復不能の計算に対応しています。';
+      }
+
+      els.cautionNote.textContent =
+        isDK
+          ? '注意: 第一興商3ページの「契約終了後もソフトウェア又は関連資料を使用した場合」の項目はOCRベースの参考実装です。実務利用前に原文確認をおすすめします。'
+          : '注意: エクシングの原状返還不能・滅失・修復不能時の扱いは、入力前提に応じて別判断が必要な場合があります。実務利用前に原文確認をおすすめします。';
+    }
+
+    function calculateBaseMonthly() {
+      const standardPrice = num(els.standardPrice.value);
+      const contractMonths = num(els.contractMonths.value);
+      if (contractMonths <= 0) return 0;
+      return floor(standardPrice / contractMonths);
+    }
+
+    function calcRental(baseMonthly, provider) {
+      const remainingMonths = num(els.remainingMonths.value);
+      const handoverBefore = els.handoverBefore.value === 'yes';
+      const actualDamage = num(els.actualDamageRental.value);
+
+      const basicAmount = floor(baseMonthly * remainingMonths * 2 / 3);
+      let adopted = Math.max(basicAmount, 500000);
+      let rule = '基本式と最低50万円を比較';
+
+      if (handoverBefore) {
+        adopted = baseMonthly * (provider === 'dk' ? 3 : 6);
+        rule = provider === 'dk'
+          ? '物件引渡し前のため 基準月額×3か月'
+          : '物件引渡し前のため 基準月額×6か月';
+      }
+
+      if (actualDamage > adopted) {
+        adopted = actualDamage;
+        rule += ' → 現実損害額を優先';
+      }
+
+      return {
+        amount: floor(adopted),
+        detail: `基本額 ${yen(basicAmount)} / 採用 ${rule}`
+      };
+    }
+
+    function calcReturnDelay(baseMonthly) {
+      const delayDays = num(els.delayDays.value);
+      const amount = floor(baseMonthly * 2 * delayDays / 30);
+      return {
+        amount,
+        detail: `基準月額×2 × ${delayDays}日 ÷ 30`
+      };
+    }
+
+    function calcInfoService() {
+      const monthlyInfoFee = num(els.monthlyInfoFee.value);
+      const remainingMonths = num(els.remainingMonths.value);
+      const amount = floor(monthlyInfoFee * remainingMonths / 2);
+      return {
+        amount,
+        detail: `月額情報サービス料 × 残存${remainingMonths}か月 × 1/2`
+      };
+    }
+
+    function calcPContent() {
+      const pContentFee = num(els.pContentFee.value);
+      const remainingMonths = num(els.remainingMonths.value);
+      const amount = floor(pContentFee * remainingMonths / 2);
+      return {
+        amount,
+        detail: `Pコンテンツ利用料 × 残存${remainingMonths}か月 × 1/2`
+      };
+    }
+
+    function calcSoftwareUse() {
+      const monthlyInfoFee = num(els.monthlyInfoFee.value);
+      const useMonths = num(els.softwareUseMonths.value);
+      const actualDamage = num(els.actualDamageSoftware.value);
+
+      let amount = floor(monthlyInfoFee * 2 * useMonths);
+      let detail = `月額情報サービス料 × 2 × 使用期間${useMonths}か月`;
+
+      if (actualDamage > amount) {
+        amount = actualDamage;
+        detail += ' → 現実損害額を優先';
+      }
+
+      return { amount, detail };
+    }
+
+    function calcRestoreImpossible(baseMonthly) {
+      const actualDamage = num(els.actualDamageRestore.value);
+      let amount = baseMonthly * 6;
+      let detail = '基準月額 × 6か月';
+
+      if (actualDamage > amount) {
+        amount = actualDamage;
+        detail += ' → 現実損害額を優先';
+      }
+
+      return { amount: floor(amount), detail };
+    }
+
+    function addBreakdownItem(name, amount, detail) {
+      const row = document.createElement('div');
+      row.className = 'breakdownItem';
+      row.innerHTML = `
+        <div>
+          <div class="name">${name}</div>
+          <div class="small">${detail}</div>
+        </div>
+        <div class="val">${yen(amount)}</div>
+      `;
+      els.breakdownList.appendChild(row);
+    }
+
+    function calculate() {
+      updateVisibility();
+      els.error.textContent = '';
+      els.breakdownList.innerHTML = '';
+
+      const provider = els.provider.value;
+      const contractMonths = num(els.contractMonths.value);
+      const standardPrice = num(els.standardPrice.value);
+      const remainingMonths = num(els.remainingMonths.value);
+      const baseMonthly = calculateBaseMonthly();
+
+      if (contractMonths < 0 || standardPrice < 0 || remainingMonths < 0) {
+        els.error.textContent = '負の数は入力できません。';
+        return;
+      }
+
+      if (remainingMonths > contractMonths && contractMonths > 0) {
+        els.error.textContent = '残存契約期間月数が契約月数を超えています。入力値を確認してください。';
+      }
+
+      els.baseMonthly.textContent = yen(baseMonthly);
+
+      let total = 0;
+      let count = 0;
+
+      if (els.useRental.checked) {
+        const r = calcRental(baseMonthly, provider);
+        total += r.amount;
+        count++;
+        addBreakdownItem(provider === 'dk' ? '賃貸借違約金（第一興商）' : '賃貸借損害金（エクシング）', r.amount, r.detail);
+      }
+
+      if (els.useReturnDelay.checked) {
+        const r = calcReturnDelay(baseMonthly);
+        total += r.amount;
+        count++;
+        addBreakdownItem('返還遅延', r.amount, r.detail);
+      }
+
+      if (els.useInfoService.checked) {
+        const r = calcInfoService();
+        total += r.amount;
+        count++;
+        let extra = r.detail;
+        if (els.monthPartialInfo.value === 'yes') {
+          extra += ' / 月途中終了でも1か月分発生の注意表示';
+        }
+        addBreakdownItem('情報サービス料違約金', r.amount, extra);
+      }
+
+      if (provider === 'dk' && els.usePContent.checked) {
+        const r = calcPContent();
+        total += r.amount;
+        count++;
+        addBreakdownItem('Pコンテンツ違約金', r.amount, r.detail);
+      }
+
+      if (provider === 'dk' && els.useSoftware.checked) {
+        const r = calcSoftwareUse();
+        total += r.amount;
+        count++;
+        addBreakdownItem('契約終了後ソフト等使用（参考）', r.amount, r.detail);
+      }
+
+      if (provider === 'xing' && els.useRestoreImpossible.checked) {
+        const r = calcRestoreImpossible(baseMonthly);
+        total += r.amount;
+        count++;
+        addBreakdownItem('原状返還不能 / 滅失 / 修復不能', r.amount, r.detail);
+      }
+
+      if (count === 0) {
+        addBreakdownItem('未選択', 0, '計算対象にチェックを入れてください');
+      }
+
+      els.totalAmount.textContent = yen(total);
+      els.totalCaption.textContent =
+        count > 0
+          ? `選択中の ${count} 項目を合算しています。`
+          : '必要な項目を選択して計算してください。';
+    }
+
+    function clearForm() {
+      [
+        'contractMonths', 'standardPrice', 'remainingMonths', 'monthlyInfoFee', 'pContentFee',
+        'actualDamageRental', 'delayDays', 'softwareUseMonths', 'actualDamageSoftware', 'actualDamageRestore'
+      ].forEach(id => { if ($(id)) $(id).value = ''; });
+
+      els.provider.value = 'dk';
+      els.handoverBefore.value = 'no';
+      els.monthPartialInfo.value = 'no';
+
+      els.useRental.checked = true;
+      els.useReturnDelay.checked = false;
+      els.useInfoService.checked = false;
+      if (els.usePContent) els.usePContent.checked = false;
+      if (els.useSoftware) els.useSoftware.checked = false;
+      if (els.useRestoreImpossible) els.useRestoreImpossible.checked = false;
+
+      calculate();
+    }
+
+    [
+      'provider', 'contractMonths', 'standardPrice', 'remainingMonths', 'monthlyInfoFee', 'pContentFee',
+      'useRental', 'useReturnDelay', 'useInfoService', 'usePContent', 'useSoftware', 'useRestoreImpossible',
+      'handoverBefore', 'actualDamageRental', 'delayDays', 'monthPartialInfo',
+      'softwareUseMonths', 'actualDamageSoftware', 'actualDamageRestore'
+    ].forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    els.calcBtn.addEventListener('click', calculate);
+    els.clearBtn.addEventListener('click', clearForm);
+
+    updateVisibility();
+    calculate();
+  </script>
+</body>
+</html>
