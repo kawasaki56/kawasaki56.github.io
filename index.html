@@ -915,11 +915,9 @@
           'エクシングモードでは、賃貸借・返還遅延・情報サービス料・原状返還不能/滅失/修復不能の計算に対応しています。';
       }
 
-      els.cautionNote.textContent =
-        isDK
-          ? '注意: 第一興商3ページの「契約終了後もソフトウェア又は関連資料を使用した場合」の項目はOCRベースの参考実装です。実務利用前に原文確認をおすすめします。'
-          : '注意: エクシングの原状返還不能・滅失・修復不能時の扱いは、入力前提に応じて別判断が必要な場合があります。実務利用前に原文確認をおすすめします。';
-    }
+      els.cautionNote.textContent = '';
+      els.cautionNote.style.display = 'none';      
+      }
 
     function calculateBaseMonthly() {
       const standardPrice = num(els.standardPrice.value);
